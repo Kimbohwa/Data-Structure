@@ -21,15 +21,24 @@ int main(void)
 
 	for (int i = 0; i < n; i++) {
 		printf("%d번 node : ", i + 1);
-		Node* newNode = createNode();
-		insertNode(&head, newNode);
+		Node* newNode = createNode();  //노드 생성
+		insertNode(&head, newNode); //노드 연결
+		newNode = NULL; //
 	}
-	printNode(head);
-	addData(head);
-	findMax(head);
+	printNode(head); //리스트 출력
+	addData(head); //리스트 덧셈
+	findMax(head); //최댓값 찾기
 
-	free(head);
-	
+	//모든 일을 마치고 메모리 반환
+	Node* next;
+	while (head != NULL) {
+		next = head->link;
+		free(head);
+		head = next;
+	}
+	head = NULL;
+	next = NULL;
+
 	return 0;
 }
 
@@ -51,9 +60,10 @@ void insertNode(Node** phead, Node* newNode) {
 	}
 	else { //헤더가 노드를 가리키고 있다면
 		Node* temp = *phead;
-		while (temp->link != NULL) temp = temp->link;
-		temp->link = newNode;
+		while (temp->link != NULL) temp = temp->link; //링크의 가장 끝
+		temp->link = newNode; //링크의 가장 끝에 새로운 노드 연결
 		newNode = NULL;
+		temp = NULL;
 	}
 }
 
