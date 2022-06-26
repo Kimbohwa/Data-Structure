@@ -1,88 +1,99 @@
-ï»¿#include <stdio.h>
+#include <stdio.h>
 
-typedef struct Heap {
-	int key[12];
-	int heap_size;
-}Heap;
+typedef struct Node {
+	int data;
+	struct Node* link;
+}Node;
 
-int input_data();
-void insert_max_heap(Heap* A, int key);
-int delete_max_heap(Heap* A);
-void print_max_heap(Heap* A);
+Node* createNode();
+void insertNode(Node** phead, Node* newNode);
+void printNode(Node* head);
+void addData(Node* head);
+void findMax(Node* head);
 
 int main(void)
 {
-	Heap heap;
-	heap.heap_size = 0; //í¬ì¸í„°ê°€ ì•„ë‹ˆë©´ .ìœ¼ë¡œë°–ì— ëª» ì”€, ì´ˆê¸°í™”, ì´ˆê¸°í™”í•˜ì§€ ì•Šìœ¼ë©´ ì—ëŸ¬
+	Node* head = NULL; 
 
-	for (int i = 1; i <= 11; i++) {
-		int key = input_data();
-		insert_max_heap(&heap, key);
+	int n = 0;
+	printf("node °³¼ö : ");
+	scanf_s("%d", &n);
+
+	for (int i = 0; i < n; i++) {
+		printf("%d¹ø node : ", i + 1);
+		Node* newNode = createNode();  //³ëµå »ı¼º
+		insertNode(&head, newNode); //³ëµå ¿¬°á
+		newNode = NULL; //
 	}
-	for (int i = 1; i <= 11; i++) {
-		int key = delete_max_heap(&heap);
-		printf("ë¹ ì ¸ë‚˜ì˜¨ ê°’ %d\n", key);
-		print_max_heap(&heap);
+	printNode(head); //¸®½ºÆ® Ãâ·Â
+	addData(head); //¸®½ºÆ® µ¡¼À
+	findMax(head); //ÃÖ´ñ°ª Ã£±â
+
+	//¸ğµç ÀÏÀ» ¸¶Ä¡°í ¸Ş¸ğ¸® ¹İÈ¯
+	Node* next;
+	while (head != NULL) {
+		next = head->link;
+		free(head);
+		head = next;
 	}
+	head = NULL;
+	next = NULL;
 
 	return 0;
 }
 
-int input_data()
-{
-	int new_key;
-	printf("ì •ìˆ˜ ê°’ì„ ì…ë ¥í•˜ì„¸ìš”.\n");
-	scanf_s("%d", &new_key);
+Node* createNode() {
+	Node* newNode = (Node*)malloc(sizeof(Node));
 
-	return new_key;
+	if (newNode == NULL) return 0; //malloc µÇÁö ¾Ê¾ÒÀ» °æ¿ì¿¡ ´ëÇÑ ¿¹¿Ü ÄÚµå
+
+	scanf_s("%d", &(newNode->data));
+	newNode->link = NULL;
+
+	return newNode;
 }
 
-void insert_max_heap(Heap* A, int new_key)
-{
-	int i = 0;
-	(A->heap_size)++;
-	i = A->heap_size;
-	A->key[i] = new_key;
-
-	while ((i != 1) && (A->key[i] > A->key[i / 2])) {//ë£¨íŠ¸ ë…¸ë“œê°€ ì•„ë‹ˆê³  ì„ì˜ì˜ ë…¸ë“œì˜ í‚¤ê°’ì´ ë¶€ëª¨ë…¸ë“œì˜ í‚¤ ê°’ë³´ë‹¤ í¬ë©´ ë¶€ëª¨ ë…¸ë“œì™€ êµí™˜
-		int tmp = A->key[i];
-		A->key[i] = A->key[i / 2];
-		A->key[i / 2] = tmp;
-		i /= 2;
+void insertNode(Node** phead, Node* newNode) {
+	if (*phead == NULL) { //Çì´õ°¡ °¡¸®Å°´Â ÁÖ¼Ò°¡ NULLÀÌ¶ó¸é
+		*phead = newNode; //Çì´õ°¡ »õ·Î¿î ³ëµå¸¦ °¡¸®Å´
+		newNode = NULL;
 	}
-	print_max_heap(A);
+	else { //Çì´õ°¡ ³ëµå¸¦ °¡¸®Å°°í ÀÖ´Ù¸é
+		Node* temp = *phead;
+		while (temp->link != NULL) temp = temp->link; //¸µÅ©ÀÇ °¡Àå ³¡
+		temp->link = newNode; //¸µÅ©ÀÇ °¡Àå ³¡¿¡ »õ·Î¿î ³ëµå ¿¬°á
+		newNode = NULL;
+		temp = NULL;
+	}
 }
 
-int delete_max_heap(Heap* A)
-{
-	int item = A->key[1]; //ê°€ì¥ í° ê°’ì„ itemì— ë„£ê³  ë°˜í™˜
-	A->key[1] = A->key[A->heap_size]; //ê°€ì¥ ë§ˆì§€ë§‰ ë…¸ë“œì˜ í‚¤ ê°’ì„ ì²« ë²ˆì§¸ ë…¸ë“œì— ë„£ëŠ”ë‹¤.
-	(A->heap_size)--; //í™ì˜ í¬ê¸°ê°€ í•˜ë‚˜ ì¤„ì–´ë“ ë‹¤.
-
-	int i = 2; 
-	int largest = 0;
-	while (i <= (A->heap_size)) {
-		if ((i < A->heap_size) && (A->key[i + 1] > A->key[i]))
-			largest = i + 1; //ì˜¤ë¥¸ìª½ ë…¸ë“œê°€ ë” í´ ë•Œ
-		else largest = i; //ì™¼ìª½ ë…¸ë“œê°€ ë” í´ ë•Œ
-
-		if (A->key[largest / 2] > A->key[largest]) break;//ë¶€ëª¨ë…¸ë“œê°€ ë” í¬ë©´ ë°˜ë³µë¬¸ ë©ˆì¶¤
-
-		//ë¶€ëª¨ë…¸ë“œì™€ ìì‹ë…¸ë“œ ê°’ êµí™˜
-		int tmp = A->key[largest / 2]; 
-		A->key[largest / 2] = A->key[largest];
-		A->key[largest] = tmp;
-
-		i = largest * 2;
+void printNode(Node* head) {
+	printf("1) linked list = ");
+	Node* tmp = head;
+	while (tmp != NULL) {
+		printf("%d ", tmp->data);
+		tmp = tmp->link;
+		if (tmp != NULL) printf("-> ");
 	}
-
-	return item;
+	printf("\n");
 }
 
-void print_max_heap(Heap* A) 
-{
-	for (int i = 1; i <= (A->heap_size); i++) {
-		printf("%d ",A->key[i]);
+void addData(Node* head) {
+	int sum = 0;
+	Node* tmp = head;
+	while (tmp != NULL) {
+		sum += tmp->data;
+		tmp = tmp->link;
 	}
-	printf("\n\n");
+	printf("2) sum of data = %d\n", sum);
+}
+
+void findMax(Node* head) {
+	int max = head->data;
+	Node* tmp = head;
+	while (tmp != NULL) {
+		if (max<tmp->data) max = tmp->data;
+		tmp = tmp->link;
+	}
+	printf("3) max of data = %d\n", max);
 }
